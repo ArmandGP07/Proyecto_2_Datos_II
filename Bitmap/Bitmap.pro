@@ -1,7 +1,11 @@
 HEADERS += \
-    widget.h
+    dialog_windows.h \
+    main_window.h \
+    main_window.h \
+    dialog_windows.h
 SOURCES += main.cpp \
-    widget.cpp
+    main_window.cpp \
+    main_window.cpp
 CONFIG += qt warn_on
 CONFIG += debug
 QT = core gui
