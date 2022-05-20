@@ -67,7 +67,7 @@ QGroupBox* CanvasSizeDialog::createSpinBoxes(int width, int height)
  * @brief PenDialog::PenDialog - Dialogue for selecting pen size and cap style
  *
  */
-PenDialog::PenDialog(QWidget* parent, DrawArea* drawArea, int size)
+PencilDialog::PencilDialog(QWidget* parent, DrawArea* drawArea, int size)
     :QDialog(parent)
 {
     setWindowTitle(tr("Pencil Properties"));
@@ -94,13 +94,13 @@ PenDialog::PenDialog(QWidget* parent, DrawArea* drawArea, int size)
  *                                     line to draw
  *
  */
-LineDialog::LineDialog(QWidget* parent, DrawArea* drawArea,
+PenDialog::PenDialog(QWidget* parent, DrawArea* drawArea,
                                         LineStyle lineStyle,
                                         DrawType drawType,
                                         int thickness)
     :QDialog(parent)
 {
-    setWindowTitle(tr("Line Dialog"));
+    setWindowTitle(tr("Pen Dialog"));
 
     QGroupBox*left = new QGroupBox(this);
 
@@ -132,7 +132,7 @@ LineDialog::LineDialog(QWidget* parent, DrawArea* drawArea,
     setLayout(grid);
 }
 
-QGroupBox* LineDialog::createLineStyle(LineStyle lineStyle)
+QGroupBox* PenDialog::createLineStyle(LineStyle lineStyle)
 {
     QGroupBox *lineStyles = new QGroupBox(tr("Line Style"), this);
     QRadioButton *solidButton = new QRadioButton(tr("Solid"), this);
@@ -141,14 +141,14 @@ QGroupBox* LineDialog::createLineStyle(LineStyle lineStyle)
     QRadioButton *dashDottedButton = new QRadioButton(tr("Dash-Dotted"), this);
     QRadioButton *dashDotDottedButton = new QRadioButton(tr("Dash-Dot-Dotted"), this);
 
-    lineStyleG = new QButtonGroup(this);
-    lineStyleG->addButton(solidButton, 0);
-    lineStyleG->addButton(dashedButton, 1);
-    lineStyleG->addButton(dottedButton, 2);
-    lineStyleG->addButton(dashDottedButton, 3);
-    lineStyleG->addButton(dashDotDottedButton, 4);
+    penStyleG = new QButtonGroup(this);
+    penStyleG->addButton(solidButton, 0);
+    penStyleG->addButton(dashedButton, 1);
+    penStyleG->addButton(dottedButton, 2);
+    penStyleG->addButton(dashDottedButton, 3);
+    penStyleG->addButton(dashDotDottedButton, 4);
 
-    connect(lineStyleG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnLineStyleConfig(int)));
+    connect(penStyleG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnLineStyleConfig(int)));
 
     switch(lineStyle)
     {
@@ -172,7 +172,7 @@ QGroupBox* LineDialog::createLineStyle(LineStyle lineStyle)
 }
 
 
-QGroupBox* LineDialog::createDrawType(DrawType drawType)
+QGroupBox* PenDialog::createDrawType(DrawType drawType)
 {
     QGroupBox *drawTypes = new QGroupBox(tr("Draw Type"), this);
     QRadioButton *singleButton = new QRadioButton(tr("Single"), this);
@@ -228,13 +228,13 @@ EraserDialog::EraserDialog(QWidget* parent, DrawArea* drawArea, int thickness)
  * @brief RectDialog::RectDialog - Dialogue for selecting what kind of rectangle to draw.
  *
  */
-RectDialog::RectDialog(QWidget* parent, DrawArea* drawArea,
+ShapesDialog::ShapesDialog(QWidget* parent, DrawArea* drawArea,
                                         LineStyle boundaryStyle, ShapeType shapeType,
                                         FillColor fillColor, BoundaryType boundaryType,
                                         int thickness)
     :QDialog(parent)
 {
-    setWindowTitle(tr("Rectangle Dialog"));
+    setWindowTitle(tr("Shapes Dialog"));
 
     this->drawArea = drawArea;
 
@@ -269,7 +269,7 @@ RectDialog::RectDialog(QWidget* parent, DrawArea* drawArea,
     setLayout(grid);
 }
 
-QGroupBox* RectDialog::createBoundaryStyle(LineStyle boundaryStyle)
+QGroupBox* ShapesDialog::createBoundaryStyle(LineStyle boundaryStyle)
 {
     QGroupBox *boundaryStyles = new QGroupBox(tr("Boundary Style"), this);
     QRadioButton *solidButton = new QRadioButton(tr("Solid"), this);
@@ -308,7 +308,7 @@ QGroupBox* RectDialog::createBoundaryStyle(LineStyle boundaryStyle)
     return boundaryStyles;
 }
 
-QGroupBox* RectDialog::createShapeType(ShapeType shapeType)
+QGroupBox* ShapesDialog::createShapeType(ShapeType shapeType)
 {
     QGroupBox *shapeTypes = new QGroupBox(tr("Shape Type"), this);
     QRadioButton *rectangleButton = new QRadioButton(tr("Rectangle"), this);
@@ -339,7 +339,7 @@ QGroupBox* RectDialog::createShapeType(ShapeType shapeType)
     return shapeTypes;
 }
 
-QGroupBox* RectDialog::createFillColor(FillColor fillColor)
+QGroupBox* ShapesDialog::createFillColor(FillColor fillColor)
 {
     QGroupBox *fillColors = new QGroupBox(tr("Fill Color"), this);
     QRadioButton *foregroundButton = new QRadioButton(tr("Foreground"), this);
@@ -370,7 +370,7 @@ QGroupBox* RectDialog::createFillColor(FillColor fillColor)
     return fillColors;
 }
 
-QGroupBox* RectDialog::createBoundaryType(BoundaryType boundaryType)
+QGroupBox* ShapesDialog::createBoundaryType(BoundaryType boundaryType)
 {
     QGroupBox *boundaryTypes = new QGroupBox(tr("Boundary Type"), this);
     QRadioButton *miterJoinButton = new QRadioButton(tr("Miter Join"), this);

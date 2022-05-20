@@ -31,10 +31,10 @@ MainWindow::MainWindow(QWidget* parent, const char* name)
     createMenuAndToolBar();
 
     // init dialog pointers to 0
+    pencilDialog = 0;
     penDialog = 0;
-    lineDialog = 0;
     eraserDialog = 0;
-    rectDialog = 0;
+    shapesDialog = 0;
 
     // adjust window size, name, & stop context menu
     setWindowTitle(name);
@@ -188,7 +188,23 @@ void MainWindow::OnChangeTool(int newTool)
  *                                  change pen settings.
  *
  */
-void MainWindow::OnPenDialog()
+void MainWindow::OpenPencilDialog()
+{
+    if(!pencilDialog)
+        pencilDialog = new PencilDialog(this, drawArea);
+
+    if(pencilDialog && pencilDialog->isVisible())
+        return;
+
+    pencilDialog->show();
+}
+
+/**
+ * @brief MainWindow::OnLineDialog - Open a LineDialog prompting the user to
+ *                                   change line tool settings.
+ *
+ */
+void MainWindow::OpenPenDialog()
 {
     if(!penDialog)
         penDialog = new PenDialog(this, drawArea);
@@ -200,27 +216,11 @@ void MainWindow::OnPenDialog()
 }
 
 /**
- * @brief MainWindow::OnLineDialog - Open a LineDialog prompting the user to
- *                                   change line tool settings.
- *
- */
-void MainWindow::OnLineDialog()
-{
-    if(!lineDialog)
-        lineDialog = new LineDialog(this, drawArea);
-
-    if(lineDialog && lineDialog->isVisible())
-        return;
-
-    lineDialog->show();
-}
-
-/**
  * @brief MainWindow::OnEraserDialog - Open a EraserDialog prompting the user
  *                                     to change eraser settings.
  *
  */
-void MainWindow::OnEraserDialog()
+void MainWindow::OpenEraserDialog()
 {
     if (!eraserDialog)
         eraserDialog = new EraserDialog(this, drawArea);
@@ -236,15 +236,15 @@ void MainWindow::OnEraserDialog()
  *                                        to change rect tool settings.
  *
  */
-void MainWindow::OnRectangleDialog()
+void MainWindow::OpenShapesDialog()
 {
-    if (!rectDialog)
-        rectDialog = new RectDialog(this, drawArea);
+    if (!shapesDialog)
+        shapesDialog = new ShapesDialog(this, drawArea);
 
-    if(rectDialog->isVisible())
+    if(shapesDialog->isVisible())
         return;
 
-    rectDialog->show();
+    shapesDialog->show();
 }
 
 /**
@@ -256,10 +256,10 @@ void MainWindow::openToolDialog()
 {
     switch(currentTool->getType())
     {
-        case pen: OnPenDialog();             break;
-        case line: OnLineDialog();           break;
-        case eraser: OnEraserDialog();       break;
-        case shapes_tool: OnRectangleDialog(); break;
+        case pencil: OpenPencilDialog();             break;
+        case line: OpenPenDialog();           break;
+        case eraser: OpenEraserDialog();       break;
+        case shapes_tool: OpenShapesDialog(); break;
     }
 }
 
@@ -369,7 +369,7 @@ void MainWindow::createMenuActions()
     rectAction->setShortcut(tr("R"));
 
 
-    signalMapperT->setMapping(penAction, pen);
+    signalMapperT->setMapping(penAction, pencil);
     signalMapperT->setMapping(lineAction, line);
     signalMapperT->setMapping(eraserAction, eraser);
     signalMapperT->setMapping(rectAction, shapes_tool);
@@ -390,6 +390,5 @@ void MainWindow::createMenuActions()
     toolActions.append(eraserAction);
     toolActions.append(rectAction);
     toolActions.append(propertiesAction);
-
 }
 

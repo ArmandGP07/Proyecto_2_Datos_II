@@ -42,25 +42,22 @@ public slots:
     void OnClearAll();
 
     /** pen tool */
-    void OnPenCapConfig(int);
-    void OnPenSizeConfig(int);
+    void OnPencilSizeConfig(int);
 
     /** eraser tool */
     void OnEraserConfig(int);
 
     /** line tool */
-    void OnLineStyleConfig(int);
-    void OnLineCapConfig(int);
-    void OnDrawTypeConfig(int);
-    void OnLineThicknessConfig(int);
+    void OnPenLineStyleConfig(int);
+    void OnPenDrawTypeConfig(int);
+    void OnPenLineThicknessConfig(int);
 
     /** rect tool */
-    void OnRectBStyleConfig(int);
-    void OnRectShapeTypeConfig(int);
-    void OnRectFillConfig(int);
-    void OnRectBTypeConfig(int);
-    void OnRectLineConfig(int);
-    void OnRectCurveConfig(int);
+    void OnShapesBStyleConfig(int);
+    void OnSelectShapeTypeConfig(int);
+    void OnShapesFillConfig(int);
+    void OnShapesBTypeConfig(int);
+    void OnShapesLineConfig(int);
 
 protected:
     /** mouse event handler */
@@ -91,10 +88,10 @@ private:
     QColor backgroundColor;
 
     /** tools */
+    PencilTool* pencilTool;
     PenTool* penTool;
-    LineTool* lineTool;
     EraserTool* eraserTool;
-    RectTool* rectTool;
+    ShapesTool* shapesTool;
 
     /** state variables */
     bool drawing;

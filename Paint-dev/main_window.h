@@ -33,10 +33,10 @@ public slots:
     void OnPickColor(int);
     void OnChangeTool(int);
     /** tool dialogs */
-    void OnPenDialog();
-    void OnLineDialog();
-    void OnEraserDialog();
-    void OnRectangleDialog();
+    void OpenPencilDialog();
+    void OpenPenDialog();
+    void OpenEraserDialog();
+    void OpenShapesDialog();
     void openToolDialog();
 
 
@@ -60,10 +60,10 @@ private:
     Tool* currentTool;
 
     /** dialog pointers */
+    PencilDialog* pencilDialog;
     PenDialog* penDialog;
-    LineDialog* lineDialog;
     EraserDialog* eraserDialog;
-    RectDialog* rectDialog;
+    ShapesDialog* shapesDialog;
     /** Don't allow copying */
     MainWindow(const MainWindow&);
     MainWindow& operator=(const MainWindow&);

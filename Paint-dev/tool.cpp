@@ -14,7 +14,7 @@
  *                          -endPoint is where the mouse was moved TO on this event.
  *
  */
-void PenTool::drawTo(const QPoint &endPoint, DrawArea *drawArea, QPixmap *image)
+void PencilTool::drawTo(const QPoint &endPoint, DrawArea *drawArea, QPixmap *image)
 {
     QPainter painter(image);
     painter.setPen(static_cast<QPen>(*this));
@@ -34,7 +34,7 @@ void PenTool::drawTo(const QPoint &endPoint, DrawArea *drawArea, QPixmap *image)
  *                           -endPoint is where the mouse was released
  *
  */
-void LineTool::drawTo(const QPoint &endPoint,  DrawArea *drawArea, QPixmap *image)
+void PenTool::drawTo(const QPoint &endPoint,  DrawArea *drawArea, QPixmap *image)
 {
     QPainter painter(image);
     painter.setPen(static_cast<QPen>(*this));
@@ -46,7 +46,7 @@ void LineTool::drawTo(const QPoint &endPoint,  DrawArea *drawArea, QPixmap *imag
  * @brief RectTool::RectTool - Constructor for a rectangle tool.
  *
  */
-RectTool::RectTool(const QBrush &brush, qreal width, Qt::PenStyle s,
+ShapesTool::ShapesTool(const QBrush &brush, qreal width, Qt::PenStyle s,
                    Qt::PenCapStyle c, Qt::PenJoinStyle j, QColor fill,
                    ShapeType shape, FillColor mode, int curve)
     : Tool(brush, width, s, c, j)
@@ -63,7 +63,7 @@ RectTool::RectTool(const QBrush &brush, qreal width, Qt::PenStyle s,
  *                           -endPoint is where the mouse was released
  *
  */
-void RectTool::drawTo(const QPoint &endPoint,  DrawArea *drawArea, QPixmap *image)
+void ShapesTool::drawTo(const QPoint &endPoint,  DrawArea *drawArea, QPixmap *image)
 {
     QPainter painter(image);
     painter.setPen(static_cast<QPen>(*this));
@@ -112,7 +112,7 @@ void RectTool::drawTo(const QPoint &endPoint,  DrawArea *drawArea, QPixmap *imag
  *                                 a rectangle
  *
  */
-QRect RectTool::adjustPoints(const QPoint &endPoint)
+QRect ShapesTool::adjustPoints(const QPoint &endPoint)
 {
     // 'top left' and 'bottom right' are relative, so we may need to
     // switch the points

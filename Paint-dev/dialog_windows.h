@@ -33,39 +33,35 @@ private:
     QGroupBox *spinBoxesGroup;
 };
 
+class PencilDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    PencilDialog(QWidget* parent, DrawArea* drawArea, int size = DEFAULT_PEN_THICKNESS);
+
+private:
+
+    DrawArea* drawArea;
+    QSlider* pencilSizeSlider;
+};
+
 class PenDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    PenDialog(QWidget* parent, DrawArea* drawArea, int size = DEFAULT_PEN_THICKNESS);
-
-private:
-   // QGroupBox* createCapStyle(CapStyle);
-
-    DrawArea* drawArea;
-   // QButtonGroup* capStyleG;
-    QSlider* pencilSizeSlider;
-};
-
-class LineDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    LineDialog(QWidget* parent, DrawArea* drawArea,
+    PenDialog(QWidget* parent, DrawArea* drawArea,
                                 LineStyle lineStyle = solid,
                                 DrawType = single,
                                 int thickness = DEFAULT_PEN_THICKNESS);
 
 private:
     QGroupBox* createLineStyle(LineStyle);
-   // QGroupBox* createCapStyle(CapStyle);
     QGroupBox* createDrawType(DrawType);
 
     DrawArea* drawArea;
-    QButtonGroup* lineStyleG;
-  //  QButtonGroup* capStyleG;
+    QButtonGroup* penStyleG;
     QButtonGroup* drawTypeG;
     QSlider* lineThicknessSlider;
 };
@@ -83,12 +79,12 @@ private:
     QSlider* eraserThicknessSlider;
 };
 
-class RectDialog : public QDialog
+class ShapesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    RectDialog(QWidget* parent, DrawArea* drawArea,
+    ShapesDialog(QWidget* parent, DrawArea* drawArea,
                                 LineStyle = solid, ShapeType = rectangle,
                                 FillColor = no_fill, BoundaryType = miter_join,
                                 int thickness = DEFAULT_PEN_THICKNESS);
@@ -105,7 +101,6 @@ private:
     QButtonGroup* fillColorG;
     QButtonGroup* boundaryTypeG;
     QSlider* lineThicknessSlider;
-    QSlider* rRectCurveSlider;
 };
 
 #endif // DIALOGS_H

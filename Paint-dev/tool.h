@@ -9,6 +9,7 @@
 
 class DrawArea;
 
+
 class Tool : public QPen
 {
 public:
@@ -32,27 +33,38 @@ private:
     Tool& operator=(const Tool&);
 };
 
-class PenTool : public Tool
+
+/**
+ * Herramientas de la funcion Lapiz
+ */
+
+class PencilTool : public Tool
 {
 public:
-    PenTool(const QBrush &brush, qreal width, Qt::PenStyle s = Qt::SolidLine,
+    PencilTool(const QBrush &brush, qreal width, Qt::PenStyle s = Qt::SolidLine,
             Qt::PenCapStyle c = Qt::RoundCap,
             Qt::PenJoinStyle j = Qt::BevelJoin)
        : Tool(brush, width, s, c, j) {}
 
-    virtual ToolType getType() const { return pen; }
+    virtual ToolType getType() const { return pencil; }
     virtual void drawTo(const QPoint&, DrawArea*, QPixmap*);
 
 private:
     /** Don't allow copying */
-    PenTool(const PenTool&);
-    PenTool& operator=(const PenTool&);
+    PencilTool(const PencilTool&);
+    PencilTool& operator=(const PencilTool&);
 };
 
-class LineTool : public Tool
+
+
+/**
+ * Herramientas de la funcion Lapicero
+ */
+
+class PenTool : public Tool
 {
 public:
-    LineTool(const QBrush &brush, qreal width, Qt::PenStyle s = Qt::SolidLine,
+    PenTool(const QBrush &brush, qreal width, Qt::PenStyle s = Qt::SolidLine,
              Qt::PenCapStyle c = Qt::RoundCap,
              Qt::PenJoinStyle j = Qt::BevelJoin)
        : Tool(brush, width, s, c, j) {}
@@ -61,18 +73,24 @@ public:
 
 private:
     /** Don't allow copying */
-    LineTool(const LineTool&);
-    LineTool& operator=(const LineTool&);
+    PenTool(const PenTool&);
+    PenTool& operator=(const PenTool&);
 };
 
-class EraserTool : public PenTool
+
+
+/**
+ * Herramientas de la funcion Borrador
+ */
+
+class EraserTool : public PencilTool
 {
 public:
     EraserTool(const QBrush &brush, qreal width,
                Qt::PenStyle s = Qt::SolidLine,
                Qt::PenCapStyle c = Qt::RoundCap,
                Qt::PenJoinStyle j = Qt::BevelJoin)
-       : PenTool(brush, width, s, c, j) {}
+       : PencilTool(brush, width, s, c, j) {}
 
     virtual ToolType getType() const { return eraser; }
 
@@ -82,10 +100,16 @@ private:
     EraserTool& operator=(const EraserTool&);
 };
 
-class RectTool : public Tool
+
+
+/**
+ * Herramientas de la funcion que dibuja Figuras
+ */
+
+class ShapesTool : public Tool
 {
 public:
-    RectTool(const QBrush &brush, qreal width, Qt::PenStyle s = Qt::SolidLine,
+    ShapesTool(const QBrush &brush, qreal width, Qt::PenStyle s = Qt::SolidLine,
              Qt::PenCapStyle c = Qt::RoundCap,
              Qt::PenJoinStyle j = Qt::BevelJoin,
              QColor fill = QColor(Qt::transparent),
@@ -111,8 +135,8 @@ private:
     int roundedCurve;
 
     /** Don't allow copying */
-    RectTool(const RectTool&);
-    RectTool& operator=(const RectTool&);
+    ShapesTool(const ShapesTool&);
+    ShapesTool& operator=(const ShapesTool&);
 };
 
 #endif // TOOL_H

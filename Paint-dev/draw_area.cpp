@@ -42,10 +42,10 @@ DrawArea::DrawArea(QWidget *parent)
 DrawArea::~DrawArea()
 {
     delete image;
+    delete pencilTool;
     delete penTool;
-    delete lineTool;
     delete eraserTool;
-    delete rectTool;
+    delete shapesTool;
 }
 
 
@@ -134,7 +134,7 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e)
             currentTool->setStartPoint(e->pos());
             //return;
         }
-        if(currentTool->getType() == pen)
+        if(currentTool->getType() == pencil)
             currentTool->drawTo(e->pos(), this, image);
 
         // for undo/redo - make sure there was a change
@@ -199,24 +199,15 @@ void DrawArea::OnClearAll()
  * @brief DrawArea::OnPenCapConfig - Update cap style for pen tool
  *
  */
-void DrawArea::OnPenCapConfig(int capStyle)
-{
-    switch (capStyle)
-    {
-        case flat: penTool->setCapStyle(Qt::FlatCap);       break;
-        case square: penTool->setCapStyle(Qt::SquareCap);   break;
-        case round_cap: penTool->setCapStyle(Qt::RoundCap); break;
-        default:                                            break;
-    }
-}
+
 
 /**
  * @brief DrawArea::OnPenSizeConfig - Update pen size
  *
  */
-void DrawArea::OnPenSizeConfig(int value)
+void DrawArea::OnPencilSizeConfig(int value)
 {
-    penTool->setWidth(value);
+    pencilTool->setWidth(value);
 }
 
 /**
@@ -232,15 +223,15 @@ void DrawArea::OnEraserConfig(int value)
  * @brief DrawArea::OnLineStyleConfig - Update line style for line tool
  *
  */
-void DrawArea::OnLineStyleConfig(int lineStyle)
+void DrawArea::OnPenLineStyleConfig(int lineStyle)
 {
     switch (lineStyle)
     {
-        case solid: lineTool->setStyle(Qt::SolidLine);                break;
-        case dashed: lineTool->setStyle(Qt::DashLine);                break;
-        case dotted: lineTool->setStyle(Qt::DotLine);                 break;
-        case dash_dotted: lineTool->setStyle(Qt::DashDotLine);        break;
-        case dash_dot_dotted: lineTool->setStyle(Qt::DashDotDotLine); break;
+        case solid: penTool->setStyle(Qt::SolidLine);                break;
+        case dashed: penTool->setStyle(Qt::DashLine);                break;
+        case dotted: penTool->setStyle(Qt::DotLine);                 break;
+        case dash_dotted: penTool->setStyle(Qt::DashDotLine);        break;
+        case dash_dot_dotted: penTool->setStyle(Qt::DashDotDotLine); break;
         default:                                                      break;
     }
 }
@@ -249,22 +240,13 @@ void DrawArea::OnLineStyleConfig(int lineStyle)
  * @brief DrawArea::OnLineCapConfig - Update cap style for line tool
  *
  */
-void DrawArea::OnLineCapConfig(int capStyle)
-{
-    switch (capStyle)
-    {
-        case flat: lineTool->setCapStyle(Qt::FlatCap);       break;
-        case square: lineTool->setCapStyle(Qt::SquareCap);   break;
-        case round_cap: lineTool->setCapStyle(Qt::RoundCap); break;
-        default:                                             break;
-    }
-}
+
 
 /**
  * @brief DrawArea::OnDrawTypeConfig - Update draw type for line tool
  *
  */
-void DrawArea::OnDrawTypeConfig(int drawType)
+void DrawArea::OnPenDrawTypeConfig(int drawType)
 {
     switch (drawType)
     {
@@ -278,24 +260,24 @@ void DrawArea::OnDrawTypeConfig(int drawType)
  * @brief DrawArea::OnLineThicknessConfig - Update line thickness for line tool
  *
  */
-void DrawArea::OnLineThicknessConfig(int value)
+void DrawArea::OnPenLineThicknessConfig(int value)
 {
-    lineTool->setWidth(value);
+    penTool->setWidth(value);
 }
 
 /**
  * @brief DrawArea::OnRectBStyleConfig - Update rectangle boundary line style
  *
  */
-void DrawArea::OnRectBStyleConfig(int boundaryStyle)
+void DrawArea:: OnShapesBStyleConfig(int boundaryStyle)
 {
     switch (boundaryStyle)
     {
-        case solid: rectTool->setStyle(Qt::SolidLine);                break;
-        case dashed: rectTool->setStyle(Qt::DashLine);                break;
-        case dotted: rectTool->setStyle(Qt::DotLine);                 break;
-        case dash_dotted: rectTool->setStyle(Qt::DashDotLine);        break;
-        case dash_dot_dotted: rectTool->setStyle(Qt::DashDotDotLine); break;
+        case solid: shapesTool->setStyle(Qt::SolidLine);                break;
+        case dashed: shapesTool->setStyle(Qt::DashLine);                break;
+        case dotted: shapesTool->setStyle(Qt::DotLine);                 break;
+        case dash_dotted: shapesTool->setStyle(Qt::DashDotLine);        break;
+        case dash_dot_dotted: shapesTool->setStyle(Qt::DashDotDotLine); break;
         default:                                                      break;
     }
 }
@@ -304,13 +286,13 @@ void DrawArea::OnRectBStyleConfig(int boundaryStyle)
  * @brief DrawArea::OnRectShapeTypeConfig - Update rectangle shape setting
  *
  */
-void DrawArea::OnRectShapeTypeConfig(int shape)
+void DrawArea::OnSelectShapeTypeConfig(int shape)
 {
     switch (shape)
     {
-        case rectangle: rectTool->setShapeType(rectangle);                 break;
-        case triangle: rectTool->setShapeType(triangle); break;
-        case ellipse: rectTool->setShapeType(ellipse);                     break;
+        case rectangle: shapesTool->setShapeType(rectangle);                 break;
+        case triangle: shapesTool->setShapeType(triangle); break;
+        case ellipse: shapesTool->setShapeType(ellipse);                     break;
         default:                                                           break;
     }
 }
@@ -319,16 +301,16 @@ void DrawArea::OnRectShapeTypeConfig(int shape)
  * @brief DrawArea::OnRectFillConfig - Update rectangle fill setting
  *
  */
-void DrawArea::OnRectFillConfig(int fillType)
+void DrawArea::OnShapesFillConfig(int fillType)
 {
     switch (fillType)
     {
-        case foreground: rectTool->setFillMode(foreground);
-                         rectTool->setFillColor(foregroundColor);      break;
-        case background: rectTool->setFillMode(background);
-                         rectTool->setFillColor(backgroundColor);      break;
-        case no_fill: rectTool->setFillMode(no_fill);
-                      rectTool->setFillColor(QColor(Qt::transparent)); break;
+        case foreground: shapesTool->setFillMode(foreground);
+                         shapesTool->setFillColor(foregroundColor);      break;
+        case background: shapesTool->setFillMode(background);
+                         shapesTool->setFillColor(backgroundColor);      break;
+        case no_fill: shapesTool->setFillMode(no_fill);
+                      shapesTool->setFillColor(QColor(Qt::transparent)); break;
         default:                                                       break;
     }
 }
@@ -337,13 +319,13 @@ void DrawArea::OnRectFillConfig(int fillType)
  * @brief DrawArea::OnRectBTypeConfig - Update rectangle join style
  *
  */
-void DrawArea::OnRectBTypeConfig(int boundaryType)
+void DrawArea::OnShapesBTypeConfig(int boundaryType)
 {
     switch (boundaryType)
     {
-        case miter_join: rectTool->setJoinStyle(Qt::MiterJoin);  break;
-        case bevel_join: rectTool->setJoinStyle(Qt::BevelJoin);  break;
-        case round_join: rectTool->setJoinStyle(Qt::RoundJoin);  break;
+        case miter_join: shapesTool->setJoinStyle(Qt::MiterJoin);  break;
+        case bevel_join: shapesTool->setJoinStyle(Qt::BevelJoin);  break;
+        case round_join: shapesTool->setJoinStyle(Qt::RoundJoin);  break;
         default:                                                 break;
     }
 }
@@ -352,19 +334,11 @@ void DrawArea::OnRectBTypeConfig(int boundaryType)
  * @brief DrawArea::OnRectLineConfig - Update rectangle line width
  *
  */
-void DrawArea::OnRectLineConfig(int value)
+void DrawArea::OnShapesLineConfig(int value)
 {
-    rectTool->setWidth(value);
+    shapesTool->setWidth(value);
 }
 
-/**
- * @brief DrawArea::OnRectCurveConfig - Update rounded rectangle curve
- *
- */
-void DrawArea::OnRectCurveConfig(int value)
-{
-    rectTool->setCurve(value);
-}
 
 /**
  * @brief DrawArea::createNewImage - creates a new image of
@@ -462,20 +436,20 @@ void DrawArea::updateColorConfig(const QColor &color, int which)
     if(which == foreground)
     {
          foregroundColor = color;
+         pencilTool->setColor(foregroundColor);
          penTool->setColor(foregroundColor);
-         lineTool->setColor(foregroundColor);
-         rectTool->setColor(foregroundColor);
+         shapesTool->setColor(foregroundColor);
 
-         if(rectTool->getFillMode() == foreground)
-             rectTool->setFillColor(foregroundColor);
+         if(shapesTool->getFillMode() == foreground)
+             shapesTool->setFillColor(foregroundColor);
     }
     else
     {
         backgroundColor = color;
         eraserTool->setColor(backgroundColor);
 
-        if(rectTool->getFillMode() == background)
-            rectTool->setFillColor(backgroundColor);
+        if(shapesTool->getFillMode() == background)
+            shapesTool->setFillColor(backgroundColor);
     }
 }
 
@@ -498,10 +472,10 @@ Tool* DrawArea::setCurrentTool(int newType)
 
     switch(newType)
     {
-        case pen: currentTool = penTool;        break;
-        case line: currentTool = lineTool;      break;
+        case pencil: currentTool = pencilTool;        break;
+        case line: currentTool = penTool;      break;
         case eraser: currentTool = eraserTool;  break;
-        case shapes_tool: currentTool = rectTool; break;
+        case shapes_tool: currentTool = shapesTool; break;
         default:                                break;
     }
     return currentTool;
@@ -539,13 +513,13 @@ void DrawArea::saveDrawCommand(const QPixmap &old_image)
 void DrawArea::createTools()
 {
     // create the tools
+    pencilTool = new PencilTool(QBrush(Qt::black), DEFAULT_PEN_THICKNESS);
     penTool = new PenTool(QBrush(Qt::black), DEFAULT_PEN_THICKNESS);
-    lineTool = new LineTool(QBrush(Qt::black), DEFAULT_PEN_THICKNESS);
     eraserTool = new EraserTool(QBrush(Qt::white), DEFAULT_ERASER_THICKNESS);
-    rectTool = new RectTool(QBrush(Qt::black), DEFAULT_PEN_THICKNESS);
+    shapesTool = new ShapesTool(QBrush(Qt::black), DEFAULT_PEN_THICKNESS);
 
     // set default tool
-    currentTool = static_cast<Tool*>(penTool);
+    currentTool = static_cast<Tool*>(pencilTool);
 }
 
 /**
