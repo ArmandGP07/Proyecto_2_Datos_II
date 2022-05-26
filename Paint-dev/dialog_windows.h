@@ -85,19 +85,17 @@ class ShapesDialog : public QDialog
 
 public:
     ShapesDialog(QWidget* parent, DrawArea* drawArea,
-                                LineStyle = solid, ShapeType = rectangle,
+                                LineStyle = solid,
                                 FillColor = no_fill, BoundaryType = miter_join,
                                 int thickness = DEFAULT_PEN_THICKNESS);
 
 private:
     QGroupBox* createBoundaryStyle(LineStyle);
-    QGroupBox* createShapeType(ShapeType);
     QGroupBox* createFillColor(FillColor);
     QGroupBox* createBoundaryType(BoundaryType);
 
     DrawArea* drawArea;
     QButtonGroup* boundaryStyleG;
-    QButtonGroup* shapeTypeG;
     QButtonGroup* fillColorG;
     QButtonGroup* boundaryTypeG;
     QSlider* lineThicknessSlider;

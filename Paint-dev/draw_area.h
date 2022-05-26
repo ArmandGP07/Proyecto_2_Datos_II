@@ -15,12 +15,12 @@ class DrawArea : public QWidget
 public:
     DrawArea(QWidget *parent);
     ~DrawArea();
-
     QPixmap* getImage() { return image; }
     Tool* getCurrentTool() const { return currentTool; }
     QColor getForegroundColor() { return foregroundColor; }
     QColor getBackgroundColor() { return backgroundColor; }
-
+    QPoint getPOINT(){ return punto;}
+    void setDropperState(bool);
     Tool* setCurrentTool(int);
     void setLineMode(const DrawType mode);
 
@@ -96,7 +96,8 @@ private:
     /** state variables */
     bool drawing;
     bool drawingPoly;
-
+    bool dropperState;
+    QPoint punto;
     /** Don't allow copying */
     DrawArea(const DrawArea&);
     DrawArea& operator=(const DrawArea&);

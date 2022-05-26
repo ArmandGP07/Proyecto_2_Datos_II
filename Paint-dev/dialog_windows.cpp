@@ -81,7 +81,7 @@ PencilDialog::PencilDialog(QWidget* parent, DrawArea* drawArea, int size)
     pencilSizeSlider->setSliderPosition(size);
     pencilSizeSlider->setTracking(false);
     connect(pencilSizeSlider, SIGNAL(valueChanged(int)),
-            drawArea, SLOT(OnPenSizeConfig(int)));
+            drawArea, SLOT(OnPencilSizeConfig(int)));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addWidget(penSizeLabel);
@@ -122,7 +122,7 @@ PenDialog::PenDialog(QWidget* parent, DrawArea* drawArea,
     lineThicknessSlider->setMaximum(MAX_PEN_SIZE);
     lineThicknessSlider->setSliderPosition(thickness);
     lineThicknessSlider->setTracking(false);
-    connect(lineThicknessSlider, SIGNAL(valueChanged(int)), drawArea, SLOT(OnLineThicknessConfig(int)));
+    connect(lineThicknessSlider, SIGNAL(valueChanged(int)), drawArea, SLOT(OnPenLineThicknessConfig(int)));
 
     QGridLayout *grid = new QGridLayout(this);
     grid->addWidget(left, 0,0);
@@ -148,7 +148,7 @@ QGroupBox* PenDialog::createLineStyle(LineStyle lineStyle)
     penStyleG->addButton(dashDottedButton, 3);
     penStyleG->addButton(dashDotDottedButton, 4);
 
-    connect(penStyleG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnLineStyleConfig(int)));
+    connect(penStyleG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnPenLineStyleConfig(int)));
 
     switch(lineStyle)
     {
@@ -182,7 +182,7 @@ QGroupBox* PenDialog::createDrawType(DrawType drawType)
     drawTypeG->addButton(singleButton, 0);
     drawTypeG->addButton(polyButton, 1);
 
-    connect(drawTypeG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnDrawTypeConfig(int)));
+    connect(drawTypeG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnPenDrawTypeConfig(int)));
 
     switch(drawType)
     {
@@ -229,12 +229,14 @@ EraserDialog::EraserDialog(QWidget* parent, DrawArea* drawArea, int thickness)
  *
  */
 ShapesDialog::ShapesDialog(QWidget* parent, DrawArea* drawArea,
-                                        LineStyle boundaryStyle, ShapeType shapeType,
+                                        LineStyle boundaryStyle,
                                         FillColor fillColor, BoundaryType boundaryType,
                                         int thickness)
     :QDialog(parent)
 {
-    setWindowTitle(tr("Shapes Dialog"));
+   // QByteArray ba = drawArea->getSelectShape().toLocal8Bit();
+    //const char *title = ba.data();
+    setWindowTitle(tr("Shapes Properties"));//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
     this->drawArea = drawArea;
 
@@ -247,7 +249,7 @@ ShapesDialog::ShapesDialog(QWidget* parent, DrawArea* drawArea,
     QGroupBox *right = new QGroupBox(this);
 
     QVBoxLayout *vboxR = new QVBoxLayout(this);
-    vboxR->addWidget(createShapeType(shapeType));
+  //  vboxR->addWidget(createShapeType(shapeType));
     vboxR->addWidget(createFillColor(fillColor));
     vboxR->addWidget(createBoundaryType(boundaryType));
     right->setLayout(vboxR);
@@ -259,7 +261,7 @@ ShapesDialog::ShapesDialog(QWidget* parent, DrawArea* drawArea,
     lineThicknessSlider->setSliderPosition(thickness);
     lineThicknessSlider->setTracking(false);
 
-    connect(lineThicknessSlider, SIGNAL(valueChanged(int)), drawArea, SLOT(OnRectLineConfig(int)));
+    connect(lineThicknessSlider, SIGNAL(valueChanged(int)), drawArea, SLOT(OnShapesLineConfig(int)));
 
     QGridLayout *grid = new QGridLayout(this);
     grid->addWidget(left, 0,0);
@@ -285,7 +287,7 @@ QGroupBox* ShapesDialog::createBoundaryStyle(LineStyle boundaryStyle)
     boundaryStyleG->addButton(dashDottedButton, 3);
     boundaryStyleG->addButton(dashDotDottedButton, 4);
 
-    connect(boundaryStyleG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnRectBStyleConfig(int)));
+    connect(boundaryStyleG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnShapesBStyleConfig(int)));
 
     switch(boundaryStyle)
     {
@@ -307,38 +309,6 @@ QGroupBox* ShapesDialog::createBoundaryStyle(LineStyle boundaryStyle)
 
     return boundaryStyles;
 }
-
-QGroupBox* ShapesDialog::createShapeType(ShapeType shapeType)
-{
-    QGroupBox *shapeTypes = new QGroupBox(tr("Shape Type"), this);
-    QRadioButton *rectangleButton = new QRadioButton(tr("Rectangle"), this);
-    QRadioButton *triangleleButton = new QRadioButton(tr("Triangle"), this);
-    QRadioButton *ellipseButton = new QRadioButton(tr("Ellipse"), this);
-
-    shapeTypeG = new QButtonGroup(this);
-    shapeTypeG->addButton(rectangleButton, 0);
-    shapeTypeG->addButton(triangleleButton, 1);
-    shapeTypeG->addButton(ellipseButton, 2);
-
-    connect(shapeTypeG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnRectShapeTypeConfig(int)));
-
-    switch(shapeType)
-    {
-        case rectangle: rectangleButton->setChecked(true);          break;
-        case triangle: triangleleButton->setChecked(true); break;
-        case ellipse: ellipseButton->setChecked(true);              break;
-        default:                                                    break;
-    }
-
-    QVBoxLayout *vbox = new QVBoxLayout(shapeTypes);
-    vbox->addWidget(rectangleButton);
-    vbox->addWidget(triangleleButton);
-    vbox->addWidget(ellipseButton);
-    shapeTypes->setLayout(vbox);
-
-    return shapeTypes;
-}
-
 QGroupBox* ShapesDialog::createFillColor(FillColor fillColor)
 {
     QGroupBox *fillColors = new QGroupBox(tr("Fill Color"), this);
@@ -351,7 +321,7 @@ QGroupBox* ShapesDialog::createFillColor(FillColor fillColor)
     fillColorG->addButton(backgroundButton, 1);
     fillColorG->addButton(noFillButton, 2);
 
-    connect(fillColorG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnRectFillConfig(int)));
+    connect(fillColorG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnShapesFillConfig(int)));
 
     switch(fillColor)
     {
@@ -382,7 +352,7 @@ QGroupBox* ShapesDialog::createBoundaryType(BoundaryType boundaryType)
     boundaryTypeG->addButton(bevelJoinButton, 1);
     boundaryTypeG->addButton(roundJoinButton, 2);
 
-    connect(boundaryTypeG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnRectBTypeConfig(int)));
+    connect(boundaryTypeG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnShapesBTypeConfig(int)));
 
     switch(boundaryType)
     {

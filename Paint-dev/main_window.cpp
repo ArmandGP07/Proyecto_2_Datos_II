@@ -8,7 +8,6 @@ using namespace std;
 #include <QSignalMapper>
 #include <QMenuBar>
 #include <QMenu>
-
 #include "main_window.h"
 #include "commands.h"
 #include "draw_area.h"
@@ -24,7 +23,6 @@ MainWindow::MainWindow(QWidget* parent, const char* name)
     // create the DrawArea, which will receive the draw mouse events
     drawArea = new DrawArea(this);
     drawArea->setStyleSheet("background-color:transparent");
-
     // get default tool
     currentTool = drawArea->getCurrentTool();
     // create the menu and toolbar
@@ -35,7 +33,11 @@ MainWindow::MainWindow(QWidget* parent, const char* name)
     penDialog = 0;
     eraserDialog = 0;
     shapesDialog = 0;
-
+    //etiqueta->setText("Hola");
+    etiqueta->setStyleSheet("background-color:"+ drawArea->getForegroundColor().name() );
+    etiqueta->setFixedSize(25,25);
+    estado->setFixedSize(65,25);
+    estado->setText("Lapiz");
     // adjust window size, name, & stop context menu
     setWindowTitle(name);
     resize(QDesktopWidget().availableGeometry(this).size()*.6);
@@ -55,9 +57,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
 {
+
     if(e->button() == Qt::RightButton) {
         openToolDialog();
+        estado->setText("DERECHA");
     }
+    //(e->button() == Qt::LeftButton)
+
 }
 
 /**
@@ -154,6 +160,19 @@ void MainWindow::OnResizeImage()
  *                                  select a color.
  *
  */
+
+void MainWindow::OnGetPixelColor(){
+
+    drawArea->setDropperState(true);
+    etiqueta->setStyleSheet("background-color:"+ drawArea->getForegroundColor().name() );
+    estado->setText("Picker");
+
+
+}
+
+
+
+
 void MainWindow::OnPickColor(int which)
 {
     QColorDialog* colorDialog = new QColorDialog(this);
@@ -172,6 +191,8 @@ void MainWindow::OnPickColor(int which)
 
     // done with the dialog, free it
     delete colorDialog;
+    etiqueta->setStyleSheet("background-color:"+ drawArea->getForegroundColor().name() );
+
 }
 
 /**
@@ -180,8 +201,38 @@ void MainWindow::OnPickColor(int which)
  */
 void MainWindow::OnChangeTool(int newTool)
 {
+    drawArea->setDropperState(false);
     currentTool = drawArea->setCurrentTool(newTool); // notify observer
+    if(newTool == 0){
+    estado->setText("Lapiz");}
+    else if(newTool == 1){
+    estado->setText("Lapicero");}
+    else if(newTool == 2){
+    estado->setText("Borrador");}
+    /**
+    else if(newTool == 3){
+    estado->setText("Figuras");}
+    */
 }
+
+void MainWindow::OnSelectRectangle(){
+    OnChangeTool(3);
+    drawArea->OnSelectShapeTypeConfig(0);
+    estado->setText("Rectangulo");
+}
+void MainWindow::OnSelectCircle(){
+    OnChangeTool(3);
+    drawArea->OnSelectShapeTypeConfig(1);
+    estado->setText("Circulo");
+
+}
+void MainWindow::OnSelectTriangle(){
+    OnChangeTool(3);
+    drawArea->OnSelectShapeTypeConfig(2);
+    estado->setText("Triangulo");
+
+}
+
 
 /**
  * @brief MainWindow::OnPenDialog - Open a PenDialog prompting the user to
@@ -257,7 +308,7 @@ void MainWindow::openToolDialog()
     switch(currentTool->getType())
     {
         case pencil: OpenPencilDialog();             break;
-        case line: OpenPenDialog();           break;
+        case pen: OpenPenDialog();           break;
         case eraser: OpenEraserDialog();       break;
         case shapes_tool: OpenShapesDialog(); break;
     }
@@ -275,7 +326,11 @@ void MainWindow::createMenuAndToolBar()
 
     // create the toolbar
     toolbar = new ToolBar(this, toolActions);
+    toolbar->layout();
+    toolbar->addWidget(etiqueta);
+    toolbar->addWidget(estado);
     addToolBar(toolbar);
+    //etiqueta->move(750,25);
 
 }
 
@@ -299,6 +354,10 @@ void MainWindow::createMenuActions()
     QIcon lineIcon(":/icons/lineIcon");
     QIcon eraserIcon(":/icons/eraserIcon");
     QIcon rectIcon(":/icons/rectIcon");
+    QIcon rectangleIcon(":/icons/rectangleIcon");
+    QIcon circleIcon(":/icons/circleIcon");
+    QIcon triangleIcon(":/icons/triangleIcon");
+    QIcon dropperIcon(":/icons/dropperIcon");
     QIcon propertiesIcon(":/icons/propiedadesIcon");
 
     QMenu* barra_herramientas = new QMenu(tr("File"), this);
@@ -316,6 +375,14 @@ void MainWindow::createMenuActions()
     QAction* clear_canvas_Action = barra_herramientas->addAction(clear_canvas_Icon, tr("Clear Canvas"),drawArea, SLOT(OnClearAll()), tr("Ctrl+C"));
 
     QAction* resizeAction = barra_herramientas->addAction( custom_size_canvas_Icon, tr("Custom Canvas"),this, SLOT(OnResizeImage()), tr("Ctrl+R"));
+
+    QAction* dropperAction = barra_herramientas->addAction( dropperIcon, tr("Fill Picker"),this,SLOT(OnGetPixelColor()));
+
+    QAction* rectangleAction = barra_herramientas->addAction(rectangleIcon, tr("Rectangle"),this, SLOT(OnSelectRectangle()));
+
+    QAction* circleAction = barra_herramientas->addAction(circleIcon, tr("Circle"),this, SLOT(OnSelectCircle()));
+
+    QAction* triangleAction = barra_herramientas->addAction(triangleIcon, tr("Triangle"),this, SLOT(OnSelectTriangle()));
 
     QAction* propertiesAction = barra_herramientas->addAction(propertiesIcon, tr("Draw Config"),this, SLOT(openToolDialog()));
 
@@ -363,16 +430,12 @@ void MainWindow::createMenuActions()
             signalMapperT, SLOT(map()));
     eraserAction->setShortcut(tr("E"));
 
-    QAction* rectAction = new QAction(rectIcon, tr("Shapes Tool"), this);
-    connect(rectAction, SIGNAL(triggered()),
-            signalMapperT, SLOT(map()));
-    rectAction->setShortcut(tr("R"));
+
 
 
     signalMapperT->setMapping(penAction, pencil);
-    signalMapperT->setMapping(lineAction, line);
+    signalMapperT->setMapping(lineAction, pen);
     signalMapperT->setMapping(eraserAction, eraser);
-    signalMapperT->setMapping(rectAction, shapes_tool);
 
     connect(signalMapperT, SIGNAL(mapped(int)), this, SLOT(OnChangeTool(int)));
 
@@ -385,10 +448,13 @@ void MainWindow::createMenuActions()
     toolActions.append(resizeAction);
     toolActions.append(fColorAction);
     toolActions.append(bColorAction);
+    toolActions.append(dropperAction);
     toolActions.append(penAction);
     toolActions.append(lineAction);
     toolActions.append(eraserAction);
-    toolActions.append(rectAction);
+    toolActions.append(rectangleAction);
+    toolActions.append(circleAction);
+    toolActions.append(triangleAction);
     toolActions.append(propertiesAction);
 }
 

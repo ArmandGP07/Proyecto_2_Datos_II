@@ -7,34 +7,34 @@
 
 
 /**
- * @brief DrawArea::DrawArea - constructor for our Draw Area.
- *                             Pointers to the MainWindow's
- *                             tools and image are mandatory
- *
+ * @brief DrawArea::DrawArea - Es el constructor del objeto drawArea que vendria a ser una super clase
+ * que contiene el lienzo donde se va dibujar, ademas de distintos atributos de este, como de las funciones, ademas
+ * de variables de estado de ciertos eventos que se pueden desarrollar en el programa que tienen que ver directamente
+ * con todo lo de la edicion de las imagenes en sí.
  */
 DrawArea::DrawArea(QWidget *parent)
     : QWidget(parent)
 {
-    // initialize the undo stack
+    // inicializa el objeto undoStack que es un tipo de pila que permite almacenar los diferentes estados de una
+    // imagen que contiene todo lo que se haya editado dentro del programa.
     undoStack = new QUndoStack(this);
     undoStack->setUndoLimit(UNDO_LIMIT);
 
-    // initialize image
+    // inicializa la imagen que vendria a ser el lienzo
     image = new QPixmap();
 
     //create the pen, line, eraser, & rect tools
     createTools();
 
-    // initialize colors
+    // iniciliza los colores por defecto
     foregroundColor = Qt::black;
     backgroundColor = Qt::white;
-
-    // initialize state variables
+    // inicializa las variables de los estados de ciertos eventos o funciones que se estan ejecutando
     drawing = false;
     drawingPoly = false;
+    dropperState = false;
     currentLineMode = single;
 
-    // small optimizations
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_StaticContents);
 }
@@ -48,12 +48,6 @@ DrawArea::~DrawArea()
     delete shapesTool;
 }
 
-
-/**
- * @brief DrawArea::paintEvent - redraw part of the image based
- *                               on what was modified
- *
- */
 void DrawArea::paintEvent(QPaintEvent *e)
 
 {
@@ -63,10 +57,14 @@ void DrawArea::paintEvent(QPaintEvent *e)
 }
 
 /**
- * @brief DrawArea::mousePressEvent - left-click initiates a draw
- *
- *                                  - right-click opens a dialog
- *                                    menu for the current tool
+ * @brief DrawArea::mousePressEvent Este metodo maneja los eventos correspondientes a ejecutarse, según la función
+ *                                  del program en ejecucion cuando cuando se presiona algun bonton en el mouse.
+ *                                  - clic-izquierdo inicia a dibujar con la funcion lapiz un trazo continuo.
+ *                                  -clic-izquierdo ingresa el punto inicial y final en la función lapicero.
+ *                                  -clic-izquierdo ingresa el punto inicial y final en la funciones que
+ *                                   dibujan las figuras.
+ *                                  - clic-derecho abre un "dialog" que tien las propiedades de la función
+ *                                  seleccionada por el usuario.
  *
  */
 void DrawArea::mousePressEvent(QMouseEvent *e)
@@ -74,27 +72,40 @@ void DrawArea::mousePressEvent(QMouseEvent *e)
 
     if(e->button() == Qt::RightButton)
     {
-        // open the dialog menu
+        // Abre el "dialog menu" segun la función seleccionada por el usuario.
         static_cast<MainWindow*>(parent())->mousePressEvent(e);
     }
     else if (e->button() == Qt::LeftButton)
     {
         if(image->isNull())
             return;
-
+        if (dropperState){
+            punto =e->pos();
+            QColor color_temp = this->getImage()->toImage().pixelColor(this->getPOINT());
+            if (color_temp.isValid())
+                this->updateColorConfig(color_temp, foreground);
+            static_cast<MainWindow*>(parent())->OnGetPixelColor();
+            return;
+        }
         drawing = true;
+
+        if (dropperState){
+            punto =e->pos();
+        }
 
         if(!drawingPoly)
             currentTool->setStartPoint(e->pos());
 
-        // save a copy of the old image
+        // guarda una copia de la anterior imagen a la nueva edicion.
         oldImage = image->copy(QRect());
     }
 }
 
 /**
- * @brief DrawArea::mouseMoveEvent - draw
- *
+ * @brief DrawArea::mouseMoveEvent:  Este metodo maneja los eventos correspondientes a ejecutarse, según la función
+ *                                  del programa en ejecución cuando cuando se mueve el cursor del mouse.
+ *                                  -Estira las figuras cuando se estan dibujando.
+ *                                  -Estira la linea que se traza con la función lapicero.
  */
 void DrawArea::mouseMoveEvent(QMouseEvent *e)
 {
@@ -104,10 +115,10 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e)
             return;
 
         ToolType type = currentTool->getType();
-        if(type == line || type == shapes_tool)
+        if(type == pen || type == shapes_tool)
         {
             *image = oldImage;
-            if(type == line && currentLineMode == poly)
+            if(type == pen && currentLineMode == poly)
             {
                 drawingPoly = true;
             }
@@ -117,8 +128,8 @@ void DrawArea::mouseMoveEvent(QMouseEvent *e)
 }
 
 /**
- * @brief DrawArea::mouseReleaseEvent - finish drawing
- *
+ * @brief DrawArea::mouseReleaseEvent: Este metodo maneja los eventos correspondientes a ejecutarse, según la función
+ *                                  del programa en ejecución cuando cuando se deja de presionar el mouse.
  */
 void DrawArea::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -137,16 +148,15 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *e)
         if(currentTool->getType() == pencil)
             currentTool->drawTo(e->pos(), this, image);
 
-        // for undo/redo - make sure there was a change
-        // (in case drawing began off-image)
         if(oldImage.toImage() != image->toImage())
             saveDrawCommand(oldImage);
     }
 }
 
 /**
- * @brief DrawArea::mouseDoubleClickEvent - cancel poly mode
- *
+ * @brief DrawArea::mouseDoubleClickEvent:  Si en la funcion lapicero se escogio hacer trazos de un poligono
+ *                                          al hacer doble clic se vuelve al trazo normal de una simple
+ *                                          linea recta.
  */
 void DrawArea::mouseDoubleClickEvent(QMouseEvent *e)
 {
@@ -156,9 +166,9 @@ void DrawArea::mouseDoubleClickEvent(QMouseEvent *e)
             drawingPoly = false;
     }
 }
-
 /**
- * @brief DrawArea::OnSaveImage - Undo a previous action
+ * @brief DrawArea::OnSaveImage: Este metode devuleve a su estado original la imagen antes del utltimo cambio
+ *                              -Función "undo"
  *
  */
 void DrawArea::OnUndo()
@@ -171,7 +181,9 @@ void DrawArea::OnUndo()
 }
 
 /**
- * @brief DrawArea::OnRedo - Redo a previously undone action
+ * @brief DrawArea::OnRedo: Este metodo devuelve a un estado posterior la imagen si se a retrocedido a estados
+ *                         previos de el ultimo cambio
+ *                         -Función "redo"
  *
  */
 void DrawArea::OnRedo()
@@ -184,7 +196,8 @@ void DrawArea::OnRedo()
 }
 
 /**
- * @brief DrawArea::OnClearAll - Clear the image
+ * @brief DrawArea::OnClearAll:  Limpia por completo la imagen dejandola a su estado original, dejando solo el color de fondo seleccionado
+ *                               o el fondo blanco que es qel que se asigna por defecto.
  *
  */
 void DrawArea::OnClearAll()
@@ -196,14 +209,8 @@ void DrawArea::OnClearAll()
 }
 
 /**
- * @brief DrawArea::OnPenCapConfig - Update cap style for pen tool
- *
- */
-
-
-/**
- * @brief DrawArea::OnPenSizeConfig - Update pen size
- *
+ * @brief DrawArea::OnPencilSizeConfig:  Este metodo configura el grozor del trazo de la clase "Pencil" que pertenece a la clase
+ *                                       que abstrae la función Lapiz.
  */
 void DrawArea::OnPencilSizeConfig(int value)
 {
@@ -211,8 +218,8 @@ void DrawArea::OnPencilSizeConfig(int value)
 }
 
 /**
- * @brief DrawArea::OnEraserConfig - Update eraser thickness
- *
+ * @brief DrawArea::OnEraserConfig:  Este metodo configura el grozor de la clase "Eraser" que pertenece a la clase
+ *                                   que abstrae la función Borrador.
  */
 void DrawArea::OnEraserConfig(int value)
 {
@@ -220,7 +227,12 @@ void DrawArea::OnEraserConfig(int value)
 }
 
 /**
- * @brief DrawArea::OnLineStyleConfig - Update line style for line tool
+ * @brief DrawArea::OnPenStyleConfig: Cambia el estilo del trazado del objeto Pen
+ *                                   -SolidLine:     linea continua
+ *                                   -DashLine:      linea de lineas espaciadas
+ *                                   -DotLine:       linea punteada
+ *                                   -DashDotLine:   linea de puntos y lineas
+ *                                   -DashDotDotLine:linea de linea-punto-punto-linea
  *
  */
 void DrawArea::OnPenLineStyleConfig(int lineStyle)
@@ -235,16 +247,12 @@ void DrawArea::OnPenLineStyleConfig(int lineStyle)
         default:                                                      break;
     }
 }
-
 /**
- * @brief DrawArea::OnLineCapConfig - Update cap style for line tool
- *
- */
-
-
-/**
- * @brief DrawArea::OnDrawTypeConfig - Update draw type for line tool
- *
+ * @brief DrawArea::OnDrawTypeConfig: Configura las dos formas de implementar la funcion Lapicero(Pen)
+ *                                   -single: Traza una linea recta entre dos puntos
+ *                                   -poly: Traza una linea recta entre dos puntos
+ *                                            toomando como punto inicial el ultimo
+ *                                            punto de la ultima recta trazada.
  */
 void DrawArea::OnPenDrawTypeConfig(int drawType)
 {
@@ -257,8 +265,7 @@ void DrawArea::OnPenDrawTypeConfig(int drawType)
 }
 
 /**
- * @brief DrawArea::OnLineThicknessConfig - Update line thickness for line tool
- *
+ * @brief DrawArea::OnPenLineThicknessConfig: Configura el grozor del trazo del Objeto Pen.
  */
 void DrawArea::OnPenLineThicknessConfig(int value)
 {
@@ -266,8 +273,13 @@ void DrawArea::OnPenLineThicknessConfig(int value)
 }
 
 /**
- * @brief DrawArea::OnRectBStyleConfig - Update rectangle boundary line style
- *
+ * @brief DrawArea::OnShapesBStyleConfig:  Cambia el estilo del trazado del Objeto Shapes que se encarga de dibujar
+ *                                         alguna de las figuras disponibles.
+ *                                          -SolidLine:     linea continua.
+ *                                          -DashLine:      linea de lineas espaciadas.
+ *                                          -DotLine:       linea punteada.
+ *                                          -DashDotLine:   linea de puntos y lineas.
+ *                                          -DashDotDotLine:linea de linea-punto-punto-linea.
  */
 void DrawArea:: OnShapesBStyleConfig(int boundaryStyle)
 {
@@ -283,23 +295,26 @@ void DrawArea:: OnShapesBStyleConfig(int boundaryStyle)
 }
 
 /**
- * @brief DrawArea::OnRectShapeTypeConfig - Update rectangle shape setting
+ * @brief DrawArea::OnSelectShapeTypeConfig: Este metodo se encarga de asignar el tipo de figura
+ *                                           que debe dibujar el objeto Shapes.
  *
  */
 void DrawArea::OnSelectShapeTypeConfig(int shape)
 {
     switch (shape)
     {
-        case rectangle: shapesTool->setShapeType(rectangle);                 break;
-        case triangle: shapesTool->setShapeType(triangle); break;
-        case ellipse: shapesTool->setShapeType(ellipse);                     break;
-        default:                                                           break;
+        case rectangle: shapesTool->setShapeType(rectangle);        break;
+        case ellipse: shapesTool->setShapeType(ellipse);        break;
+        case triangle: shapesTool->setShapeType(triangle);        break;
+    default:                                                           break;
     }
 }
 
 /**
- * @brief DrawArea::OnRectFillConfig - Update rectangle fill setting
- *
+ * @brief DrawArea::OnShapesFillConfig:  Este metodo se encarga de configurar el relleno de las figuras geometricas.
+ *                                       -foregraund: Dibuja una figura rellena de un mismo color al de sus bordes.
+ *                                       -background: Dibuja una figura con el relleno del mismo color del fondo del lienzo.
+ *                                       -no_fil:     Dibuja una figura sin relleno.
  */
 void DrawArea::OnShapesFillConfig(int fillType)
 {
@@ -316,7 +331,7 @@ void DrawArea::OnShapesFillConfig(int fillType)
 }
 
 /**
- * @brief DrawArea::OnRectBTypeConfig - Update rectangle join style
+ * @brief DrawArea::OnShapesBTypeConfig: - Update rectangle join style
  *
  */
 void DrawArea::OnShapesBTypeConfig(int boundaryType)
@@ -331,8 +346,7 @@ void DrawArea::OnShapesBTypeConfig(int boundaryType)
 }
 
 /**
- * @brief DrawArea::OnRectLineConfig - Update rectangle line width
- *
+ * @brief DrawArea::OnShapesLineConfig: Este metodo confugra el grozor del trazo de las figuras.
  */
 void DrawArea::OnShapesLineConfig(int value)
 {
@@ -341,9 +355,8 @@ void DrawArea::OnShapesLineConfig(int value)
 
 
 /**
- * @brief DrawArea::createNewImage - creates a new image of
- *                                   user-specified dimensions
- *
+ * @brief DrawArea::createNewImage: Meto que crea el nuevo objeto de timo QPixmap que sera de lienzo
+ *                                  el cual se le asigna a la variable "image".
  */
 void DrawArea::createNewImage(const QSize &size)
 {
@@ -360,25 +373,26 @@ void DrawArea::createNewImage(const QSize &size)
 }
 
 /**
- * @brief DrawArea::loadImage - Load an image from a user-specified file
- *
+ * @brief DrawArea::loadImage: Este metodo se encarga de abrir una imagen que este en el equipo, siempre
+ *                             que esté en formato BitMap.
  */
 void DrawArea::loadImage(const QString &fileName)
 {
-    // save a copy of the old image
+    // guarda una copia de "image" antes de que se cagrgue la imagen.
     oldImage = image->copy();
 
     image->load(fileName);
     update();
 
-    // for undo/redo
+    // Guarda la copia hecha antes, en la lista que almacena
+    //los estados para los comandos "undo" y "redo".
     if(!imagesEqual(oldImage, *image))
         saveDrawCommand(oldImage);
 }
 
 /**
- * @brief DrawArea::saveImage - Save an image to user-specified file
- *
+ * @brief DrawArea::saveImage: Este metodo guarda todo lo realizado en el editor de imagenes
+ *                             en un archivo en formato Bitmap.
  */
 void DrawArea::saveImage(const QString &fileName)
 {
@@ -386,50 +400,47 @@ void DrawArea::saveImage(const QString &fileName)
 }
 
 /**
- * @brief DrawArea::resizeImage - Resize image to user-specified dimensions
- *
+ * @brief DrawArea::resizeImage: Este metodo se encarga de reconfigurar las dimensiones de "image"
+ *                               que hace de lienzo.
  */
 void DrawArea::resizeImage(const QSize &size)
 {
-    // save a copy of the old image
+    // Guarda una copia de "image" antes de que se realicen los cambios.
     oldImage = image->copy();
 
-    // if no change, do nothing
+    // Se evalua si no hayc cambios algunos en la escogencia del usuario
+    // para no hacer nada.
     if(image->size() == size)
     {
         return;
     }
 
-    // else re-scale the image
+    // "Si no" erealiza los cambios en las dimensiones
     *image = image->scaled(size, Qt::IgnoreAspectRatio);
     update();
-
-    // for undo/redo
+    // Guarda la copia hecha antes, en la lista que almacena
+    //los estados para los comandos "undo" y "redo".
     saveDrawCommand(oldImage);
 }
-
 /**
- * @brief DrawArea::clearImage - clears an image by filling it with
- *                               the background color
- *
+ * @brief DrawArea::clearImage: Borra todo lo hecho en elñ editor de imagenes.
  */
 void DrawArea::clearImage()
 {
-    // save a copy of the old image
+    // Guarda una copia de "image" antes de que se realicen los cambios.
     oldImage = image->copy();
-
     image->fill(backgroundColor);
     update(image->rect());
-
-    // for undo/redo
-    if(!imagesEqual(oldImage, *image))
-        saveDrawCommand(oldImage);
+    // Guarda la copia hecha antes, en la lista que almacena
+    //los estados para los comandos "undo" y "redo".    if(!imagesEqual(oldImage, *image))
+    saveDrawCommand(oldImage);
 }
-
 /**
- * @brief DrawArea::updateColorConfig - Updates the tools' colors
- *                                      as appropriate
- *
+ * @brief DrawArea::updateColorConfig: Este metodo se encarga de asignar los valores de los calores a las variables que se encargan
+ *                                     tanto del color del fondo del lienzo como del
+ *                                     color de los trazos.
+ *                                     -foreground: variable que almacena el color de los trazos.
+ *                                     -background: variable que almacena el color del fonmdo del lienzo.
  */
 void DrawArea::updateColorConfig(const QColor &color, int which)
 {
@@ -454,8 +465,19 @@ void DrawArea::updateColorConfig(const QColor &color, int which)
 }
 
 /**
- * @brief DrawArea::setCurrentTool - Sets the current tool, unsetting
- *                                   poly mode if necessary
+ * @brief DrawArea:setDropperState: Este metodo asigna el valor acttivado o desactivado
+ *                                  a dropperStae, la cual va definir si se uysa o no
+ *                                  la logica necesaria para usar todo lo involucrado
+ *                                  a la funcion Picker.
+ */
+void DrawArea::setDropperState(bool state){
+    dropperState = state;
+}
+/**
+ * @brief DrawArea::setCurrentTool: Este metdo despoues de recibir cual herramienta
+ *                                  se selecciona segun el boton que se encarga de esto
+ *                                  se lo asigna "currentool" que es lña variable que se
+ *                                  encarga de guardar cual herramienta se seleccionó.
  *
  */
 Tool* DrawArea::setCurrentTool(int newType)
@@ -467,13 +489,13 @@ Tool* DrawArea::setCurrentTool(int newType)
     if(newType == currType)
         return currentTool;
 
-    if(currType == line)
+    if(currType == pen)
         drawingPoly = false;
 
     switch(newType)
     {
         case pencil: currentTool = pencilTool;        break;
-        case line: currentTool = penTool;      break;
+        case pen: currentTool = penTool;      break;
         case eraser: currentTool = eraserTool;  break;
         case shapes_tool: currentTool = shapesTool; break;
         default:                                break;
@@ -495,7 +517,8 @@ void DrawArea::setLineMode(const DrawType mode)
 }
 
 /**
- * @brief DrawArea::SaveDrawCommand - Put together a DrawCommand
+ * @brief DrawArea::SaveDrawCommand: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ *                                   Put together a DrawCommand
  *                                  and save it on the undo/redo stack.
  *
  */
@@ -507,8 +530,13 @@ void DrawArea::saveDrawCommand(const QPixmap &old_image)
 }
 
 /**
- * @brief DrawArea::createTools - takes care of creating the tools
- *
+ * @brief DrawArea::createTools: Este metodo es el que se encarga d e instanciar los objetos
+ *                               que son las herramientas del Paint++.
+ *                               -PencilTool: Objeto que se encarga de la función Lapiz.
+ *                               -PenTool: Objeto que se encarda de la función Lapicero.
+ *                               -EraserTool: Objeto que se encarga de la función Borrador.
+ *                               -ShapesTool: Objeto que se encarga de dibujar las tres diferentes figuras
+ *                                            rectangulo, círculo y triángulo.
  */
 void DrawArea::createTools()
 {
@@ -517,15 +545,15 @@ void DrawArea::createTools()
     penTool = new PenTool(QBrush(Qt::black), DEFAULT_PEN_THICKNESS);
     eraserTool = new EraserTool(QBrush(Qt::white), DEFAULT_ERASER_THICKNESS);
     shapesTool = new ShapesTool(QBrush(Qt::black), DEFAULT_PEN_THICKNESS);
-
     // set default tool
     currentTool = static_cast<Tool*>(pencilTool);
 }
-
 /**
- * @brief imagesEqual - returns true if the two images are the same
- *
- */
+ * @brief imagesEqual: Este metodo antes de agregar el ultimo estado de "image", a la pila que guarda los estados para los
+ *                      comandos "undo" y "redo", que el nuevo esatdo a guardar no sea igual que el ultimo que se guardo,
+ *                      para asi evitar guardarlo dos veces
+**/
+
 bool imagesEqual(const QPixmap &image1, const QPixmap &image2)
 {
     return image1.toImage() == image2.toImage();

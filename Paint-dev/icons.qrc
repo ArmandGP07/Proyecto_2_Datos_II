@@ -13,6 +13,10 @@
         <file alias="resizeIcon">icons/resize_icon.png</file>
         <file alias="saveIcon">icons/save_icon.png</file>
         <file alias="undoIcon">icons/undo_icon.png</file>
+        <file alias="dropperIcon">icons/dropper_icon.png</file>
+        <file alias="rectangleIcon">icons/rectangle_icon.png</file>
+        <file alias="circleIcon">icons/circle_icon.png</file>
+        <file alias="triangleIcon">icons/triangle_icon.png</file>
         <file alias="propiedadesIcon">icons/propiedades.png</file>
     </qresource>
     <qresource prefix="/"/>

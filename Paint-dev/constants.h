@@ -24,10 +24,10 @@ const int MAX_IMG_HEIGHT = 1440;
 /** max number of undo commands */
 const int UNDO_LIMIT = 100;
 
-enum ToolType {pencil, line, eraser, shapes_tool};
+enum ToolType {pencil, pen, eraser, shapes_tool};
 enum LineStyle {solid, dashed, dotted, dash_dotted, dash_dot_dotted};
 enum DrawType {single, poly};
-enum ShapeType {rectangle, triangle, ellipse};
+enum ShapeType {rectangle, ellipse, triangle};
 enum FillColor {foreground, background, no_fill};
 enum BoundaryType {miter_join, bevel_join, round_join};
 

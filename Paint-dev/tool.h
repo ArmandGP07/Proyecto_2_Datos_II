@@ -68,7 +68,7 @@ public:
              Qt::PenCapStyle c = Qt::RoundCap,
              Qt::PenJoinStyle j = Qt::BevelJoin)
        : Tool(brush, width, s, c, j) {}
-    virtual ToolType getType() const { return line; }
+    virtual ToolType getType() const { return pen; }
     virtual void drawTo(const QPoint&, DrawArea*, QPixmap*);
 
 private:
@@ -129,11 +129,10 @@ public:
 
     QPolygon polygon;
 private:
-    ShapeType shapeType;
     QColor fillColor;
     FillColor fillMode;
     int roundedCurve;
-
+    ShapeType shapeType;
     /** Don't allow copying */
     ShapesTool(const ShapesTool&);
     ShapesTool& operator=(const ShapesTool&);

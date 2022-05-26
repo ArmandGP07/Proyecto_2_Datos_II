@@ -3,8 +3,11 @@
 
 
 /**
- * @brief DrawCommand::DrawCommand - A command that keeps a copy of the image
- *                                   before and after something is drawn
+ * @Luis Pablo DrawCommand::DrawCommand - A command that keeps a copy of the image
+ *
+ *                                  before and after something is drawn
+ *
+ *
  */
 DrawCommand::DrawCommand(const QPixmap &oldImage, QPixmap *image,
                                QUndoCommand *parent)
@@ -16,7 +19,8 @@ DrawCommand::DrawCommand(const QPixmap &oldImage, QPixmap *image,
 }
 
 /**
- * @brief DrawCommand::undo - Undo a draw command, restoring the old image
+ * @Luis Pablo DrawCommand::undo - Restaura la imagen anterior almacenada en
+ * oldImage que almacena el estado anterior del ultimo cambio hecho en el lienzo
  */
 void DrawCommand::undo()
 {
@@ -24,7 +28,9 @@ void DrawCommand::undo()
 }
 
 /**
- * @brief DrawCommand::redo - 'Undo' an undo, restoring the new image
+ * @Luis Pablo DrawCommand::redo - Almacena cada nuevo cambio en la variable neImage
+ * por si se vuelve algun estado anterior, sea posible regresar al ultimo cambio
+ * nuevamente
  */
 void DrawCommand::redo()
 {

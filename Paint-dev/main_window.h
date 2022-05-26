@@ -12,7 +12,7 @@
 
 
 class Tool;
-
+class QLabel;
 class MainWindow: public QMainWindow
 {
 	Q_OBJECT
@@ -20,9 +20,12 @@ class MainWindow: public QMainWindow
 public:
     MainWindow(QWidget* parent = 0, const char* name = 0);
     ~MainWindow();
-
+    QLabel * etiqueta = new QLabel( this);
+    QLabel * estado = new QLabel (this);
+    //QString selectedShapeType;
     /** mouse event handler */
     void virtual mousePressEvent (QMouseEvent*) override;
+   // QString getSelectShape();
 
 public slots:
     /** toolbar actions */
@@ -30,8 +33,12 @@ public slots:
 	void OnLoadImage();
     void OnSaveImage();
     void OnResizeImage();
+    void OnGetPixelColor();
     void OnPickColor(int);
     void OnChangeTool(int);
+    void OnSelectRectangle();
+    void OnSelectCircle();
+    void OnSelectTriangle();
     /** tool dialogs */
     void OpenPencilDialog();
     void OpenPenDialog();
