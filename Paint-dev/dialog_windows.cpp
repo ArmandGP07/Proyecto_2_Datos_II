@@ -11,8 +11,8 @@
 
 
 /**
- * @brief CanvasSizeDialog::CanvasSizeDialog - Dialogue for creating a new
- *                                             canvas
+ * @brief CanvasSizeDialog::CanvasSizeDialog: Este metodo es el constructor del objeto QDialog que muestra las opciones para
+ *                                            redefinir el tamaño del lienzo del editor de imagenes.
  */
 CanvasSizeDialog::CanvasSizeDialog(QWidget* parent, const char* name, int width, int height)
     :QDialog(parent)
@@ -25,34 +25,35 @@ CanvasSizeDialog::CanvasSizeDialog(QWidget* parent, const char* name, int width,
 }
 
 /**
- * @brief NewCanvasDialog::createSpinBoxes - Create the QSpinBoxes for the dialog
- *                                           box as well as the buttons
+ * @brief NewCanvasDialog::createSpinBoxes: Este metodo instancia un objeto QGroupBox que muestra las opciones para
+ *                                            redefinir el tamaño del lienzo, el cual se añade al QDialog cque muestra
+ *                                            las opciones para redimensionar el tamaño del lienzo.
  */
 QGroupBox* CanvasSizeDialog::createSpinBoxes(int width, int height)
 {
     QGroupBox *spinBoxesGroup = new QGroupBox(tr("Image Size"), this);
 
-    // the width field
+    // Se define el ancho del lienzo.
     widthSpinBox = new QSpinBox(this);
     widthSpinBox->setRange(MIN_IMG_WIDTH, MAX_IMG_WIDTH);
     widthSpinBox->setSingleStep(1);
     widthSpinBox->setValue(width);
     widthSpinBox->setSuffix("px");
 
-    // the height field
+    // Se define la altura del lienzo.
     heightSpinBox = new QSpinBox(this);
     heightSpinBox->setRange(MIN_IMG_HEIGHT, MAX_IMG_HEIGHT);
     heightSpinBox->setSingleStep(1);
     heightSpinBox->setValue(height);
     heightSpinBox->setSuffix("px");
 
-    // the buttons
+    // Se agregan los botones.
     QPushButton *okButton = new QPushButton(tr("OK"), this);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
-    // put it all together
+    // Integra todo al QGroupBox.
     QFormLayout *spinBoxLayout = new QFormLayout(spinBoxesGroup);
     spinBoxLayout->addRow(tr("Width: "), widthSpinBox);
     spinBoxLayout->addRow(tr("Height: "), heightSpinBox);
@@ -64,8 +65,8 @@ QGroupBox* CanvasSizeDialog::createSpinBoxes(int width, int height)
 }
 
 /**
- * @brief PenDialog::PenDialog - Dialogue for selecting pen size and cap style
- *
+ * @brief PenDialog::PencilDialog: Este metodo es el constructor del objeto QDialog que muestra un SizeSlider para redefinir el grosor
+ *                                 del trazo de la funcion lapiz.
  */
 PencilDialog::PencilDialog(QWidget* parent, DrawArea* drawArea, int size)
     :QDialog(parent)
@@ -90,9 +91,8 @@ PencilDialog::PencilDialog(QWidget* parent, DrawArea* drawArea, int size)
 }
 
 /**
- * @brief LineDialog::LineSizeDialog - Dialogue for selecting what kind of
- *                                     line to draw
- *
+ * @brief PenDialog::LineSizeDialog: Este metodo es el constructor  del objeto QDialog que muestra un SizeSlider para redefinir el grosor
+ *                                   del trazo de la funcion lapicero.
  */
 PenDialog::PenDialog(QWidget* parent, DrawArea* drawArea,
                                         LineStyle lineStyle,
@@ -131,7 +131,15 @@ PenDialog::PenDialog(QWidget* parent, DrawArea* drawArea,
     grid->addWidget(lineThicknessSlider, 3, 0, 1, 2);
     setLayout(grid);
 }
-
+/**
+ * @brief PenDialog::createLineStyle: Este metodo es el que se usa para instanciar un QGroupBox que tiene las opciones de
+ *                                    el tipo de linea que va trazar la funcion lapicero.
+ *                                   -SolidLine:     linea continua
+ *                                   -DashLine:      linea de lineas espaciadas
+ *                                   -DotLine:       linea punteada
+ *                                   -DashDotLine:   linea de puntos y lineas
+ *                                   -DashDotDotLine:linea de linea-punto-punto-linea
+ */
 QGroupBox* PenDialog::createLineStyle(LineStyle lineStyle)
 {
     QGroupBox *lineStyles = new QGroupBox(tr("Line Style"), this);
@@ -170,8 +178,14 @@ QGroupBox* PenDialog::createLineStyle(LineStyle lineStyle)
 
     return lineStyles;
 }
-
-
+/**
+ * @brief PenDialog::createDrawType:  Este metodo es el que se usa para instanciar un QGroupBox que tiene las opciones de
+ *                                    de dos tipos de ejecucion de la funcion lapicero.
+ *                                   -single: Traza una linea recta entre dos puntos.
+ *                                   -poly: Traza una linea recta entre dos puntos
+ *                                            toomando como punto inicial el ultimo
+ *                                            punto de la ultima recta trazada.
+ */
 QGroupBox* PenDialog::createDrawType(DrawType drawType)
 {
     QGroupBox *drawTypes = new QGroupBox(tr("Draw Type"), this);
@@ -200,8 +214,8 @@ QGroupBox* PenDialog::createDrawType(DrawType drawType)
 }
 
 /**
- * @brief EraserDialog::EraserDialog - Dialogue for choosing eraser thickness.
- *
+ * @brief EraserDialog::EraserDialog: Este metodo es el constructor el objeto QDialog que muestra un SizeSlider para redefinir el grosor
+ *                                    del objeto Eraser que se usa para ejecutar la función borrador.
  */
 EraserDialog::EraserDialog(QWidget* parent, DrawArea* drawArea, int thickness)
     :QDialog(parent)
@@ -225,19 +239,17 @@ EraserDialog::EraserDialog(QWidget* parent, DrawArea* drawArea, int thickness)
 }
 
 /**
- * @brief RectDialog::RectDialog - Dialogue for selecting what kind of rectangle to draw.
+ * @brief RectDialog::ShapesDialog: Este metodo es el constructor del Objeto QDialog que muestra las opciones para configurar como se van a dibuijar
+ *                                  las figuras que dispone Paint++.
  *
  */
 ShapesDialog::ShapesDialog(QWidget* parent, DrawArea* drawArea,
                                         LineStyle boundaryStyle,
-                                        FillColor fillColor, BoundaryType boundaryType,
+                                        FillColor fillColor,
                                         int thickness)
     :QDialog(parent)
 {
-   // QByteArray ba = drawArea->getSelectShape().toLocal8Bit();
-    //const char *title = ba.data();
-    setWindowTitle(tr("Shapes Properties"));//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
+    setWindowTitle(tr("Shapes Properties"));
     this->drawArea = drawArea;
 
     QGroupBox*left = new QGroupBox(this);
@@ -249,11 +261,9 @@ ShapesDialog::ShapesDialog(QWidget* parent, DrawArea* drawArea,
     QGroupBox *right = new QGroupBox(this);
 
     QVBoxLayout *vboxR = new QVBoxLayout(this);
-  //  vboxR->addWidget(createShapeType(shapeType));
     vboxR->addWidget(createFillColor(fillColor));
-    vboxR->addWidget(createBoundaryType(boundaryType));
     right->setLayout(vboxR);
-
+    // Se usa un Slider que se usa para determinar el grosor de los bordes de las figuras.
     QLabel *lineThicknessLabel = new QLabel(tr("Line Thickness"), this);
     lineThicknessSlider = new QSlider(Qt::Horizontal, this);
     lineThicknessSlider->setMinimum(MIN_PEN_SIZE);
@@ -270,7 +280,15 @@ ShapesDialog::ShapesDialog(QWidget* parent, DrawArea* drawArea,
     grid->addWidget(lineThicknessSlider, 2, 0, 1, 2);
     setLayout(grid);
 }
-
+/**
+ * @brief ShapesDialog::createBoundaryStyle: Este metodo es el que se usa para instanciar un QGroupBox que tiene las opciones de
+ *                                    el tipo de linea que va trazar la funcion que dibuja las figuras.
+ *                                   -SolidLine:     linea continua
+ *                                   -DashLine:      linea de lineas espaciadas
+ *                                   -DotLine:       linea punteada
+ *                                   -DashDotLine:   linea de puntos y lineas
+ *                                   -DashDotDotLine:linea de linea-punto-punto-linea
+ */
 QGroupBox* ShapesDialog::createBoundaryStyle(LineStyle boundaryStyle)
 {
     QGroupBox *boundaryStyles = new QGroupBox(tr("Boundary Style"), this);
@@ -309,6 +327,13 @@ QGroupBox* ShapesDialog::createBoundaryStyle(LineStyle boundaryStyle)
 
     return boundaryStyles;
 }
+/**
+ * @brief ShapesDialog::createFillColor:  Este metodo es el constructor de un objeto QDialog que tiene las opciones para configurar el relleno
+ *                                        de las figuras geometricas.
+ *                                       -foregraund: Dibuja una figura rellena de un mismo color al de sus bordes.
+ *                                       -background: Dibuja una figura con el relleno del mismo color del fondo del lienzo.
+ *                                       -no_fil:     Dibuja una figura sin relleno.
+ */
 QGroupBox* ShapesDialog::createFillColor(FillColor fillColor)
 {
     QGroupBox *fillColors = new QGroupBox(tr("Fill Color"), this);
@@ -340,33 +365,4 @@ QGroupBox* ShapesDialog::createFillColor(FillColor fillColor)
     return fillColors;
 }
 
-QGroupBox* ShapesDialog::createBoundaryType(BoundaryType boundaryType)
-{
-    QGroupBox *boundaryTypes = new QGroupBox(tr("Boundary Type"), this);
-    QRadioButton *miterJoinButton = new QRadioButton(tr("Miter Join"), this);
-    QRadioButton *bevelJoinButton = new QRadioButton(tr("Bevel Join"), this);
-    QRadioButton *roundJoinButton = new QRadioButton(tr("Round Join"), this);
 
-    boundaryTypeG = new QButtonGroup(this);
-    boundaryTypeG->addButton(miterJoinButton, 0);
-    boundaryTypeG->addButton(bevelJoinButton, 1);
-    boundaryTypeG->addButton(roundJoinButton, 2);
-
-    connect(boundaryTypeG, SIGNAL(buttonClicked(int)), drawArea, SLOT(OnShapesBTypeConfig(int)));
-
-    switch(boundaryType)
-    {
-        case miter_join: miterJoinButton->setChecked(true); break;
-        case bevel_join: bevelJoinButton->setChecked(true); break;
-        case round_join: roundJoinButton->setChecked(true); break;
-        default:                                            break;
-    }
-
-    QVBoxLayout *vbox = new QVBoxLayout(boundaryTypes);
-    vbox->addWidget(miterJoinButton);
-    vbox->addWidget(bevelJoinButton);
-    vbox->addWidget(roundJoinButton);
-    boundaryTypes->setLayout(vbox);
-
-    return boundaryTypes;
-}
